@@ -21,13 +21,13 @@ pipeline {
             }
             steps {
                 container('node') {
-                    sh "yarn install"
-                    sh "yarn test"
+                    sh 'yarn install'
+                    sh 'yarn test'
                 }
             }
             post {
                 always {
-                    sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K"
+                    sh 'curl -s https://codecov.io/bash | bash -s - -c -F unit -K'
                 }
             }
         }
@@ -38,13 +38,13 @@ pipeline {
             steps {
                 milestone 1
                 container('node') {
-                    sh "yarn install"
-                    sh "yarn test"
+                    sh 'yarn install'
+                    sh 'yarn test'
                 }
             }
             post {
                 always {
-                    sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K"
+                    sh 'curl -s https://codecov.io/bash | bash -s - -c -F unit -K'
                 }
             }
         }
@@ -53,7 +53,7 @@ pipeline {
                 branch 'master'
             }
             environment {
-                REGISTRY = "registry.molgenis.org"
+                REGISTRY = 'registry.molgenis.org'
             }
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
@@ -69,8 +69,8 @@ pipeline {
                 }
                 milestone 2
                 container('node') {
-                    sh """
-                       export APP_NAME=$(node -pe \"require('./package.json').name\")
+                    sh '''
+                       export APP_NAME=$(node -pe "require(\'./package.json\').name")
 
                        git config --global user.email git@molgenis.org
                        git config --global user.name molgenis
@@ -83,8 +83,8 @@ pipeline {
                        git push --tags origin master
 
                        export APP_VERSION=$(node -pe \"require('./package.json').version\")
-                       curl -v --user '${env.NEXUS_USERNAME}:${env.NEXUS_PASSWORD}' --upload-file dist/${APP_NAME}.zip  https://${REGISTRY}/repository/appstore/${APP_NAME}/${APP_VERSION}/${APP_NAME}.zip
-                    """
+                       curl -v --user \'${env.NEXUS_USERNAME}:${env.NEXUS_PASSWORD}\' --upload-file dist/${APP_NAME}.zip  https://${REGISTRY}/repository/appstore/${APP_NAME}/${APP_VERSION}/${APP_NAME}.zip
+                    '''
                 }
             }
         }
@@ -101,9 +101,9 @@ pipeline {
 }
 
 def notifySuccess() {
-    slackSend(channel: '#releases', color: '#00FF00', message: "RPM-build is successfully deployed on https://registry.npmjs.org: Job - <${env.BUILD_URL}|${env.JOB_NAME}> | #${env.BUILD_NUMBER}")
+    slackSend(channel: '#releases', color: '#00FF00', message: 'App-build is successfully deployed on https://registry.npmjs.org: Job - <${env.BUILD_URL}|${env.JOB_NAME}> | #${env.BUILD_NUMBER}')
 }
 
 def notifyFailed() {
-    slackSend(channel: '#releases', color: '#FF0000', message: "RPM-build has failed: Job - <${env.BUILD_URL}|${env.JOB_NAME}> | #${env.BUILD_NUMBER}")
+    slackSend(channel: '#releases', color: '#FF0000', message: 'App-build has failed: Job - <${env.BUILD_URL}|${env.JOB_NAME}> | #${env.BUILD_NUMBER}')
 }
